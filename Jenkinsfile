@@ -49,7 +49,7 @@ pipeline {
           steps {
             script {
                 docker.withRegistry("https://registry.hub.docker.com/\$DOCKER_REPO", 'ebezmaternykh_dockerhub') {
-                  def dockerImage = docker.image("\${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}")
+                  def dockerImage = docker.image("\${DOCKER_IMAGE_NAME}")
                   dockerImage.push()
                 }
             }
