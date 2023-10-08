@@ -10,6 +10,8 @@ pipeline {
         NODEJS_VERSION = 'NodeJS 7.8.0'
     }
 
+
+    stages {
         stage('Test NodeJS Application') {
             steps {
                 sh 'npm test'
