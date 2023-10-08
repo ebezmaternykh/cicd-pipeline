@@ -10,8 +10,17 @@ pipeline {
         NODEJS_VERSION = 'NodeJS 7.8.0'
     }
 
-
     stages {
+
+        stage('Setup NodeJS') {
+            tools {
+                nodejs NODEJS_VERSION
+            }
+            steps {
+                sh 'npm install'
+            }
+        }
+
         stage('Test NodeJS Application') {
             steps {
                 sh 'npm test'
@@ -21,10 +30,15 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker stop \$(docker ps -q) || true"
-                    sh "docker rm \$(docker ps -a -q) || true"
-                    sh "docker rmi -f \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} || true"
-                    sh "docker build -t \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} ."
+                  if (BRANCH_NAME == 'main') {
+                        sh "docker stop \$(docker ps -q --filter name=nodemain) || true"
+                        sh "docker rm \$(docker ps -a -q --filter name=nodemain) || true"
+                  } else if (BRANCH_NAME == 'dev') {
+                        sh "docker stop \$(docker ps -q --filter name=nodedev) || true"
+                        sh "docker rm \$(docker ps -a -q --filter name=nodedev) || true"
+                  }
+                  sh "docker rmi -f \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} || true"
+                  sh "docker build -t \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} ."
                 }
             }
         }
@@ -41,14 +55,5 @@ pipeline {
             }
         }
 
-        stage('Scan Docker Image for Vulnerability') {
-            steps {
-                script {
-                    def vulnerabilities = sh(script: "trivy image --exit-code 0 --severity HIGH,MEDIUM.LOW --no-progress \
-                    ${registry}:${env.BUILD_ID }", returnStdout: true).trim()
-                    echo "Vurnerability Report:\n${vulnerabilities}"
-                }
-            }
-        }
     }
 }
