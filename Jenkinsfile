@@ -47,9 +47,9 @@ pipeline {
             steps {
                 script {
                     if (BRANCH_NAME == 'main') {
-                        sh 'docker run -d --name \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} --expose 3000 -p 3000:3000 \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}'
+                        sh 'docker run -d --name \${DOCKER_IMAGE_NAME} --expose 3000 -p 3000:3000 \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}'
                     } else if (BRANCH_NAME == 'dev') {
-                        sh 'docker run -d --name \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} --expose 3001 -p 3001:3000 \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}'
+                        sh 'docker run -d --name \${DOCKER_IMAGE_NAME} --expose 3001 -p 3001:3000 \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}'
                     }
                 }
             }
