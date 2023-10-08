@@ -34,7 +34,8 @@ pipeline {
                   if (BRANCH_NAME == 'main') {
                         sh "docker stop \$(docker ps -q --filter name=nodemain) || true"
                         sh "docker rm \$(docker ps -a -q --filter name=nodemain) || true"
-                  } else if (BRANCH_NAME == 'dev') {
+                  } 
+                  else if (BRANCH_NAME == 'dev') {
                         sh "docker stop \$(docker ps -q --filter name=nodedev) || true"
                         sh "docker rm \$(docker ps -a -q --filter name=nodedev) || true"
                   }
@@ -48,12 +49,24 @@ pipeline {
           steps {
             script {
                 docker.withRegistry('https://registry.hub.docker.com', 'ebezmaternykh_dockerhub') {
-                  def dockerImage = docker.image("${DOCKER_REPO}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}")
+                  sh "docker tag \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} \${DOCKER_REPO}/\${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}"
+                  def dockerImage = docker.image("\${DOCKER_REPO}/\${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}")
                   dockerImage.push()
                 }
             }
           }
         }
 
+    }
+
+    post {
+      success {
+        if (BRANCH_NAME == 'main') {
+          build job: 'Deploy_to_main'
+        }
+        else if (BRANCH_NAME == 'dev') {
+          build job: 'Deploy_to_dev'
+        }
+      }
     }
 }
