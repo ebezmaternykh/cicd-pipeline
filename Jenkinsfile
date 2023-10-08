@@ -3,6 +3,7 @@ pipeline {
 
     parameters {
       string(name: 'IMAGE_TAG', defaultValue: 'v1.0', description: 'Docker Image Tag')
+      string(name: 'DOCKER_REPO', defaultValue: 'ebezmaternykh/cicd-pipeline', description: 'Docker Hub Repository')
     }
 
     environment {
@@ -43,16 +44,13 @@ pipeline {
             }
         }
 
-        stage('Run Docker Container') {
-            steps {
-                script {
-                    if (BRANCH_NAME == 'main') {
-                        sh 'docker run -d --name \${DOCKER_IMAGE_NAME} --expose 3000 -p 3000:3000 \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}'
-                    } else if (BRANCH_NAME == 'dev') {
-                        sh 'docker run -d --name \${DOCKER_IMAGE_NAME} --expose 3001 -p 3001:3000 \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}'
-                    }
-                }
+        stage('Push to Docker Hub') {
+          steps {
+            script {
+                def dockerImage = docker.image('\$DOCKER_REPO/\${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}')
+                dockerImage.push()
             }
+          }
         }
 
     }
