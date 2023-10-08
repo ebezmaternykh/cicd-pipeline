@@ -39,8 +39,8 @@ pipeline {
                         sh "docker stop \$(docker ps -q --filter name=nodedev) || true"
                         sh "docker rm \$(docker ps -a -q --filter name=nodedev) || true"
                   }
-                  sh "docker rmi -f \${DOCKER_REPO}/\${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} || true"
-                  sh "docker build -t \${DOCKER_REPO}/\${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} ."
+                  sh "docker rmi -f \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} || true"
+                  sh "docker build -t \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} ."
                 }
             }
         }
@@ -48,8 +48,8 @@ pipeline {
         stage('Push to Docker Hub') {
           steps {
             script {
-                docker.withRegistry('https://registry.hub.docker.com', 'ebezmaternykh_dockerhub') {
-                  def dockerImage = docker.image("\${DOCKER_REPO}/\${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}")
+                docker.withRegistry("https://registry.hub.docker.com/\$DOCKER_REPO", 'ebezmaternykh_dockerhub') {
+                  def dockerImage = docker.image("\${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}")
                   dockerImage.push()
                 }
             }
