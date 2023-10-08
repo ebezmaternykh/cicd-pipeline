@@ -61,12 +61,14 @@ pipeline {
 
     post {
       success {
-        if (BRANCH_NAME == 'main') {
-          build job: 'Deploy_to_main'
-        }
-        else if (BRANCH_NAME == 'dev') {
-          build job: 'Deploy_to_dev'
+        script {
+          if (BRANCH_NAME == 'main') {
+                build(job: 'Deploy_to_main')
+          } else if (BRANCH_NAME == 'dev') {
+              build(job: 'Deploy_to_dev')
+          }
         }
       }
     }
+
 }
