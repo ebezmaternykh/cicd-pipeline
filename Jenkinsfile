@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE_NAME = "${BRANCH_NAME == 'main' ? 'nodemain' : 'nodedev'}"
-        NODEJS_VERSION = '7.8.0'
+        NODEJS_VERSION = 'NodeJS 7.8.0'
     }
 
     stages {
