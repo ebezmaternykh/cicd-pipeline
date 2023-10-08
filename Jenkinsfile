@@ -10,22 +10,6 @@ pipeline {
         NODEJS_VERSION = 'NodeJS 7.8.0'
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Setup NodeJS') {
-            tools {
-                nodejs NODEJS_VERSION
-            }
-            steps {
-                sh 'npm install'
-            }
-        }
-
         stage('Test NodeJS Application') {
             steps {
                 sh 'npm test'
