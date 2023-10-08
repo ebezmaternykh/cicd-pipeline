@@ -3,6 +3,7 @@ pipeline {
 
     parameters {
       string(name: 'IMAGE_TAG', defaultValue: 'v1.0', description: 'Docker Image Tag')
+      string(name: 'DOCKER_REPO', defaultValue: 'ebezmaternykh', description: 'Docker Hub Repository')
     }
 
     environment {
@@ -33,27 +34,37 @@ pipeline {
                   if (BRANCH_NAME == 'main') {
                         sh "docker stop \$(docker ps -q --filter name=nodemain) || true"
                         sh "docker rm \$(docker ps -a -q --filter name=nodemain) || true"
-                  } else if (BRANCH_NAME == 'dev') {
+                  } 
+                  else if (BRANCH_NAME == 'dev') {
                         sh "docker stop \$(docker ps -q --filter name=nodedev) || true"
                         sh "docker rm \$(docker ps -a -q --filter name=nodedev) || true"
                   }
-                  sh "docker rmi -f \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} || true"
-                  sh "docker build -t \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} ."
+                  sh "docker rmi -f \$DOCKER_REPO/\${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} || true"
+                  sh "docker build -t \$DOCKER_REPO/\${DOCKER_IMAGE_NAME}:\${IMAGE_TAG} ."
                 }
             }
         }
 
-        stage('Run Docker Container') {
-            steps {
-                script {
-                    if (BRANCH_NAME == 'main') {
-                        sh 'docker run -d --name \${DOCKER_IMAGE_NAME} --expose 3000 -p 3000:3000 \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}'
-                    } else if (BRANCH_NAME == 'dev') {
-                        sh 'docker run -d --name \${DOCKER_IMAGE_NAME} --expose 3001 -p 3001:3000 \${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}'
-                    }
-                }
+        stage('Push to Docker Hub') {
+          steps {
+            withDockerRegistry(credentialsId: 'ebezmaternykh_dockerhub', url: 'https://index.docker.io/v1/') {
+              sh "docker push \$DOCKER_REPO/\${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}"
             }
+          }
         }
 
     }
+
+    post {
+      success {
+        script {
+          if (BRANCH_NAME == 'main') {
+                build(job: 'Deploy_to_main')
+          } else if (BRANCH_NAME == 'dev') {
+              build(job: 'Deploy_to_dev')
+          }
+        }
+      }
+    }
+
 }
