@@ -47,8 +47,10 @@ pipeline {
         stage('Push to Docker Hub') {
           steps {
             script {
-                def dockerImage = docker.image('\$DOCKER_REPO/\${DOCKER_IMAGE_NAME}:\${IMAGE_TAG}')
-                dockerImage.push()
+                docker.withRegistry('https://registry.hub.docker.com', 'ebezmaternykh_dockerhub') {
+                  def dockerImage = docker.image("${DOCKER_REPO}/${DOCKER_IMAGE_NAME}:${IMAGE_TAG}")
+                  dockerImage.push()
+                }
             }
           }
         }
