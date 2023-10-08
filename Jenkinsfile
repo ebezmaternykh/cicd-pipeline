@@ -3,7 +3,7 @@ pipeline {
 
     parameters {
       string(name: 'IMAGE_TAG', defaultValue: 'v1.0', description: 'Docker Image Tag')
-      string(name: 'DOCKER_REPO', defaultValue: 'ebezmaternykh/cicd-pipeline', description: 'Docker Hub Repository')
+      string(name: 'DOCKER_REPO', defaultValue: 'ebezmaternykh', description: 'Docker Hub Repository')
     }
 
     environment {
